@@ -1,0 +1,547 @@
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LumaTrack</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unica+One&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui, sans-serif;}
+
+:root{
+ --bg:#07071a;
+ --panel-bg:#0d0d2e;
+ --textarea-bg:#121230;
+ --textarea-border:#5544aa;
+ --text:#e6e8ff;
+ --text-dim:#b8b6e0;
+ --track-hover:rgba(120,90,255,0.15);
+ --label-bg:rgba(255,255,255,0.06);
+ --label-border:rgba(255,255,255,0.12);
+ --scrollbar:#7744ff;
+ --scrollbar-track:#1a1a3f;
+}
+
+body.light-mode{
+ --bg:#f4f6ff;
+ --panel-bg:#ffffff;
+ --textarea-bg:#fbfbff;
+ --textarea-border:#bbc8ff;
+ --text:#5b5a7a;
+ --text-dim:#7d7ca0;
+ --track-hover:rgba(80,110,255,0.12);
+ --label-bg:rgba(30,40,80,0.06);
+ --label-border:rgba(30,40,80,0.12);
+ --scrollbar:#b8b0ff;
+ --scrollbar-track:#e9eaff;
+}
+
+body{ background:var(--bg); color:var(--text); padding:16px 8px; transition:background 0.25s, color 0.25s; }
+
+.header-wrap{ max-width:920px; margin:0 auto 12px; display:flex; align-items:center; justify-content:center; position:relative; }
+
+h1{ font-family: 'Unica One', sans-serif; font-size:clamp(24px, 3vw, 32px); font-weight:400; letter-spacing:1.5px; color:#e6e8ff; text-shadow:0 0 8px #7733ff,0 0 14px #3399ff; margin:0; }
+
+body.light-mode h1{ color:#5b5a7a; text-shadow:0 0 4px rgba(120,90,255,0.25); }
+
+#btnToggleTheme{ position:absolute; right:0; }
+
+.control-panel{ max-width:920px; margin:0 auto 16px; }
+
+.textarea-wrap{ position:relative; }
+
+textarea{ width:100%; background:var(--textarea-bg); color:var(--text); border:1px solid var(--textarea-border); border-radius:8px; padding:10px; font-size:14px; min-height:220px; resize:vertical; }
+
+textarea::-webkit-scrollbar { width: 8px; }
+textarea::-webkit-scrollbar-track { background: var(--scrollbar-track); border-radius: 99px; }
+textarea::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 99px; }
+textarea::-webkit-scrollbar-thumb:hover { opacity:0.8; }
+
+.textarea-actions{ position:absolute; top:8px; right:8px; display:flex; gap:6px; }
+
+.icon-btn{ width:28px; height:28px; border-radius:6px; border:none; cursor:pointer; display:grid; place-items:center; background:rgba(255,255,255,0.12); color:var(--text); font-size:16px; }
+body.light-mode .icon-btn{ background:rgba(0,0,0,0.08); }
+
+/* 匯出按鈕獨立區塊，不再蓋在scroll-container裡面 */
+.export-bar{ max-width:920px; margin:0 auto 8px; text-align:right; }
+#btnPngTop{
+ padding:6px 10px;
+ border:none;
+ border-radius:6px;
+ font-size:13px;
+ cursor:pointer;
+ display:inline-flex;
+ align-items:center;
+ gap:4px;
+ background:linear-gradient(90deg,#ff7a7a,#ffd36a);
+ box-shadow:0 0 8px rgba(255,122,122,0.35);
+ color:#fff;
+}
+body.light-mode #btnPngTop{
+ background:linear-gradient(90deg,#ffd2d4,#ffe680);
+ color:#4a3520;
+ box-shadow:0 0 8px rgba(255,122,122,0.20);
+}
+
+.scroll-container{ overflow-x:auto; overflow-y:hidden; padding:16px 8px; max-width:920px; margin:0 auto; position:relative; }
+
+.scroll-container::-webkit-scrollbar { height: 8px; }
+.scroll-container::-webkit-scrollbar-track { background: var(--scrollbar-track); border-radius: 99px; }
+.scroll-container::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 99px; }
+.scroll-container::-webkit-scrollbar-thumb:hover { opacity:0.8; }
+
+.track{ display:flex; flex-direction:row; height:44px; margin-bottom:16px; align-items:center; position:relative; transition:background-color 0.15s; flex-shrink:0; }
+
+.track.active-hover{ background:var(--track-hover); border-radius:10px; }
+
+.track-label{ width:60px; font-size:13px; color:var(--text-dim); flex-shrink:0; background:var(--label-bg); border:1px solid var(--label-border); border-radius:8px; padding:4px 6px; text-align:center; }
+
+.task-block{ height:34px; display:flex; align-items:center; justify-content:flex-start; border-radius:8px; padding:0 8px; margin-right:4px; user-select:none; touch-action:none; position:relative; transition:filter 0.2s, opacity 0.2s, box-shadow 0.2s; overflow:hidden; white-space:nowrap; flex-shrink:0; }
+/* 只有拖曳模式才顯示grab光標，點擊打勾時不會有 */
+.task-block.draggable{ cursor:grab; }
+.task-block:active.draggable{ cursor:grabbing; }
+
+.task-block-text{ font-size:14px; font-weight:600; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; letter-spacing:0.2px; }
+
+.task-block.blank{ color:transparent; border:2px dashed rgba(255,255,255,0.4); background:transparent !important; box-shadow:none !important; /* 移除pointer-events:none，保留滑鼠事件 */ }
+body.light-mode .task-block.blank{ border-color:rgba(80,90,140,0.35); }
+
+.task-block.done{ filter:brightness(0.55) saturate(0.45); box-shadow:none !important; border:1px solid rgba(255,255,255,0.18); }
+body.light-mode .task-block.done{ filter:brightness(0.82) saturate(0.75); border-color:rgba(0,0,0,0.10); }
+
+.task-block.done::after{ content:"✓"; position:absolute; right:12px; top:50%; transform:translateY(-50%); color:rgba(255,255,255,0.85); font-weight:bold; font-size:13px; }
+body.light-mode .task-block.done::after{ color:rgba(26,31,58,0.85); }
+
+.resize-handle{ position:absolute; right:0; top:0; width:10px; height:100%; cursor:ew-resize; }
+
+.dragging{ opacity:0.72; transform:scale(1.06) translateY(-3px); z-index:999; }
+
+.floating-snap-line{ position:fixed; width:8px; height:42px; background:#ffffff; box-shadow: 0 0 6px #fff, 0 0 14px #b488ff, 0 0 28px #7744ff; border-radius:4px; pointer-events:none; z-index:9999; display:none; }
+body.light-mode .floating-snap-line{ background:#333355; box-shadow: 0 0 6px #8888ff, 0 0 14px #b488ff; }
+
+.toast{ position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:rgba(20,20,40,0.92); color:white; padding:8px 14px; border-radius:8px; font-size:13px; opacity:0; pointer-events:none; transition:opacity 0.25s; z-index:99999; }
+body.light-mode .toast{ background:rgba(240,244,255,0.96); color:#5b5a7a; border:1px solid #bbc8ff; }
+.toast.show{ opacity:1; }
+
+@media (max-width:768px){
+ .header-wrap,.control-panel,.export-bar,.scroll-container{ max-width:100%; }
+ .track-label{ width:52px; font-size:12px; }
+ .task-block{ height:30px; }
+ .task-block-text{ font-size:13px; }
+}
+</style>
+
+</head>
+<body>
+<div class="header-wrap">
+ <h1>LumaTrack</h1>
+ <button class="icon-btn" id="btnToggleTheme">
+ <i class="fa fa-moon-o"></i>
+ </button>
+</div>
+<div class="control-panel">
+ <div class="textarea-wrap">
+ <textarea id="taskText" placeholder="範例：&#10;&gt;主線&#10;專案啟動|120&#10;需求分析|180&#10;&gt;次要&#10;UI設計|150&#10;__|160"></textarea>
+ <div class="textarea-actions">
+ <button class="icon-btn" id="btnCopy">
+ <i class="fa fa-copy"></i>
+ </button>
+ </div>
+ </div>
+</div>
+<!-- 匯出PNG獨立一排，不再跟甘特圖重疊 -->
+<div class="export-bar">
+ <button id="btnPngTop"><i class="fa fa-file-image-o"></i>匯出PNG</button>
+</div>
+<div class="scroll-container" id="scrollBox">
+</div>
+<div class="floating-snap-line" id="snapLine"></div>
+<div class="toast" id="toast"></div>
+<script>
+const scrollBox = document.getElementById("scrollBox");
+const snapLine = document.getElementById("snapLine");
+const ta = document.getElementById("taskText");
+const btnPngTop = document.getElementById("btnPngTop");
+const btnCopy = document.getElementById("btnCopy");
+const btnToggleTheme = document.getElementById("btnToggleTheme");
+const toast = document.getElementById("toast");
+
+let dragEl = null;
+let isResizing = false;
+let hoverTrack = null;
+let snapTargetX = 0;
+let taskIdCounter = 0;
+const taskMap = new Map();
+let renderDebounceTimer = null;
+
+const trackColorsDark = [
+  {c1:"#7b42ff", c2:"#b155ff"}, // 紫
+  {c1:"#22bbbb", c2:"#33aaff"}, // 藍
+  {c1:"#904cff", c2:"#cc66ff"}, // 紫
+  {c1:"#22bbbb", c2:"#33aaff"}, // 藍
+  {c1:"#8544ff", c2:"#b860ff"}, // 紫
+  {c1:"#22bbbb", c2:"#33aaff"}, // 藍
+];
+const trackColorsLight = [
+  {c1:"#c8bfff", c2:"#e0c2ff"}, // 淺紫
+  {c1:"#b2e9ef", c2:"#b8dfff"}, // 淺藍
+  {c1:"#d0c0ff", c2:"#e8ccff"}, // 淺紫
+  {c1:"#b2e9ef", c2:"#b8dfff"}, // 淺藍
+  {c1:"#d2c4ff", c2:"#e9d0ff"}, // 淺紫
+  {c1:"#b2e9ef", c2:"#b8dfff"}, // 淺藍
+];
+
+function showToast(msg){
+ toast.textContent = msg;
+ toast.classList.add("show");
+ clearTimeout(toast._t);
+ toast._t = setTimeout(()=>toast.classList.remove("show"), 1200);
+}
+
+function syncGanttToTextarea(){
+ const tracks = [...document.querySelectorAll(".track")];
+ let lines=[];
+ for(const tr of tracks){
+ const name = tr.querySelector(".track-label").innerText;
+ lines.push(`>${name}`);
+ const blks = [...tr.querySelectorAll(".task-block")];
+ for(let b of blks){
+ const w = parseInt(b.style.width)||100;
+ const id = b.dataset.id;
+ const task = taskMap.get(id);
+ task.w = w;
+ const done = task.done ? "|done" : "";
+ const text = task.name;
+ lines.push(`${text}|${w}${done}`);
+ }
+ }
+ ta.value = lines.join('\n');
+}
+
+function parseText(text){
+ const lines = text.split('\n').map(s=>s.trim()).filter(s=>s);
+ const tracks = [ {name:"主線",tasks:[]}, {name:"次要",tasks:[]} ];
+ let currentTrack = tracks[0];
+ for(let line of lines){
+ if(line.startsWith('>')){
+ const newName = line.slice(1);
+ let found = tracks.find(t=>t.name===newName);
+ if(!found){
+ found = {name:newName,tasks:[]};
+ tracks.push(found);
+ }
+ currentTrack = found;
+ }else if(currentTrack){
+ let parts = line.split('|');
+ let name = parts[0];
+ let w = Number(parts[1])||100;
+ let done = parts[2]==="done";
+ const id = "task-" + (++taskIdCounter);
+ const taskObj = {id, name, w:w, isBlank:(name==="__"), done};
+ taskMap.set(id, taskObj);
+ currentTrack.tasks.push(taskObj);
+ }
+ }
+ return tracks;
+}
+
+function updateTrackColors(){
+ const isLight = document.body.classList.contains("light-mode");
+ const colorList = isLight ? trackColorsLight : trackColorsDark;
+ const trackList = [...scrollBox.querySelectorAll(".track")];
+ trackList.forEach((tr, trackIdx)=>{
+  const colorCfg = colorList[trackIdx % colorList.length];
+  const blocks = [...tr.querySelectorAll(".task-block")];
+  blocks.forEach(blk=>{
+    if(!blk.classList.contains("blank")){
+      blk.style.background = `linear-gradient(90deg,${colorCfg.c1},${colorCfg.c2})`;
+      blk.style.boxShadow = `0 0 6px ${colorCfg.c1},0 0 12px color-mix(in srgb, ${colorCfg.c2} 50%, transparent)`;
+    }
+  })
+ })
+}
+
+function render(tracks){
+ scrollBox.innerHTML = "";
+
+ tracks.forEach((tr,idx)=>{
+ const divTrack = document.createElement('div');
+ divTrack.className = `track`;
+ divTrack.dataset.trackid = idx;
+ const label = document.createElement('div');
+ label.className = "track-label";
+ label.innerText = tr.name;
+ divTrack.appendChild(label);
+
+ tr.tasks.forEach(t=>{
+ const blk = document.createElement('div');
+ blk.className = "task-block draggable";
+ blk.dataset.id = t.id;
+ if(t.isBlank) blk.classList.add("blank");
+ if(t.done) blk.classList.add("done");
+ blk.style.width = t.w+"px";
+
+ const textSpan = document.createElement("span");
+ textSpan.className = "task-block-text";
+ textSpan.textContent = t.name;
+ blk.appendChild(textSpan);
+ const handle = document.createElement('div');
+ handle.className = "resize-handle";
+ blk.appendChild(handle);
+ divTrack.appendChild(blk);
+ });
+ scrollBox.appendChild(divTrack);
+ })
+ updateTrackColors();
+}
+
+function getTrackFromPoint(x,y){
+ const tracks = [...document.querySelectorAll('.track')];
+ for(const t of tracks){
+ const r = t.getBoundingClientRect();
+ if(y >= r.top && y <= r.bottom) return t;
+ }
+ return null;
+}
+
+function findNearestGapX(track, pointerX){
+ const blocks = [...track.querySelectorAll('.task-block')];
+ if(blocks.length===0){
+ const labelRect = track.querySelector(".track-label").getBoundingClientRect();
+ return labelRect.right +10;
+ }
+ let gaps=[];
+ let accX = track.querySelector(".track-label").getBoundingClientRect().right;
+ for(let b of blocks){
+ gaps.push(accX);
+ const br = b.getBoundingClientRect();
+ accX = br.right +4;
+ }
+ gaps.push(accX);
+ let best = gaps[0];
+ let minDist = Math.abs(pointerX-best);
+ for(let g of gaps){
+ const d = Math.abs(pointerX-g);
+ if(d<minDist){
+ minDist=d; best=g;
+ }
+ }
+ return minDist<28 ? best : pointerX;
+}
+
+function onStart(e){
+ const pt = e.touches ? e.touches[0] : e;
+ const target = e.target;
+ if(target.classList.contains('resize-handle')){
+ isResizing = true; dragEl = target.parentElement; return;
+ }
+ if(target.classList.contains('task-block') || target.classList.contains('task-block-text')){
+ // 點擊打勾就不啟動拖曳
+ if(target.closest(".task-block") && !["resize-handle","task-block","task-block-text"].includes(target.className)) return;
+ dragEl = target.closest('.task-block');
+ dragEl.classList.add('dragging');
+ snapLine.style.display = "block";
+ }
+}
+
+function onMove(e){
+ if(!dragEl) return; e.preventDefault();
+ const pt = e.touches ? e.touches[0] : e;
+ const x = pt.clientX; const y = pt.clientY;
+ if(isResizing){
+ const rect = dragEl.getBoundingClientRect();
+ const newW = Math.max(40, x - rect.left); dragEl.style.width = newW+"px"; return;
+ }
+ const newTrack = getTrackFromPoint(x,y);
+ if(hoverTrack) hoverTrack.classList.remove("active-hover"); hoverTrack = newTrack;
+ if(hoverTrack) hoverTrack.classList.add("active-hover");
+ if(!hoverTrack){ snapLine.style.display = "none"; return; }
+ snapLine.style.display = "block";
+ snapTargetX = findNearestGapX(hoverTrack,x);
+ const tr = hoverTrack.getBoundingClientRect();
+ snapLine.style.left = (snapTargetX -4)+"px";
+ snapLine.style.top = (tr.top+5)+"px";
+}
+
+function onEnd(e){
+ if(!dragEl) return;
+ const taskId = dragEl.dataset.id;
+ const task = taskMap.get(taskId);
+ if(isResizing){
+ const finalW = parseInt(dragEl.style.width); task.w = finalW; isResizing = false;
+ }else{
+ if(hoverTrack){
+ const blocks = [...hoverTrack.querySelectorAll('.task-block')];
+ let idx = blocks.length;
+ for(let i=0;i<blocks.length;i++){
+ const br = blocks[i].getBoundingClientRect();
+ if(snapTargetX < br.left+br.width/2){ idx=i;break; }
+ }
+ if(idx>=blocks.length) hoverTrack.appendChild(dragEl); else hoverTrack.insertBefore(dragEl,blocks[idx]);
+ }
+ dragEl.classList.remove('dragging'); snapLine.style.display = "none";
+ }
+ if(hoverTrack) hoverTrack.classList.remove("active-hover");
+ dragEl=null;hoverTrack=null;
+ syncGanttToTextarea();
+ updateTrackColors();
+}
+
+function onClickBlock(e){
+ const target = e.target;
+ if(target.classList.contains('resize-handle')) return;
+ const blk = target.closest('.task-block');
+ if(blk){
+  // 空白格禁止打勾，但保留拖曳、縮放
+  if(blk.classList.contains("blank")) return;
+  blk.classList.toggle("done");
+  const id = blk.dataset.id;
+  const task = taskMap.get(id);
+  task.done = blk.classList.contains("done");
+  syncGanttToTextarea();
+ }
+}
+
+async function copyText(){
+ try{ await navigator.clipboard.writeText(ta.value); showToast("已複製"); }catch(err){ ta.select(); document.execCommand("copy"); showToast("已複製"); }
+}
+
+async function exportPng(){
+ const scale = 2;
+ const container = scrollBox;
+ container.scrollLeft = 0;
+ await new Promise(r => setTimeout(r, 60));
+ const paddingRight = 40;
+ const fullW = container.scrollWidth + paddingRight;
+ const fullH = container.scrollHeight;
+ const canvas = document.createElement("canvas");
+ const ctx = canvas.getContext("2d");
+ canvas.width = fullW * scale;
+ canvas.height = fullH * scale;
+ ctx.scale(scale, scale);
+ const isLight = document.body.classList.contains("light-mode");
+ ctx.fillStyle = isLight ? "#f4f6ff" : "#07071a";
+ ctx.fillRect(0, 0, fullW, fullH);
+
+ const tracks = [...container.querySelectorAll(".track")];
+ const colorList = isLight ? trackColorsLight : trackColorsDark;
+
+ tracks.forEach((tr, trackIndex)=>{
+ const trRect = tr.getBoundingClientRect();
+ const containerRect = container.getBoundingClientRect();
+ const trackX = trRect.left - containerRect.left + container.scrollLeft;
+ const trackY = trRect.top - containerRect.top + container.scrollTop;
+ const label = tr.querySelector(".track-label");
+ const labelRect = label.getBoundingClientRect();
+ const labelX = labelRect.left - containerRect.left + container.scrollLeft;
+ const labelY = labelRect.top - containerRect.top + container.scrollTop;
+ const labelW = labelRect.width;
+ const labelH = labelRect.height;
+ ctx.fillStyle = isLight ? "rgba(30,40,80,0.06)" : "rgba(255,255,255,0.06)";
+ ctx.strokeStyle = isLight ? "rgba(30,40,80,0.12)" : "rgba(255,255,255,0.12)";
+ ctx.lineWidth = 1;
+ roundRect(ctx, labelX, labelY, labelW, labelH, 8);
+ ctx.fill(); ctx.stroke();
+ ctx.fillStyle = isLight ? "#7d7ca0" : "#b8b6e0";
+ ctx.font = "13px system-ui, sans-serif";
+ ctx.textBaseline = "middle";
+ ctx.fillText(label.innerText, labelX + 8, labelY + labelH/2);
+
+ const blocks = [...tr.querySelectorAll(".task-block")];
+ const colorCfg = colorList[trackIndex % colorList.length];
+ blocks.forEach(b=>{
+ const bRect = b.getBoundingClientRect();
+ const x = bRect.left - containerRect.left + container.scrollLeft;
+ const y = bRect.top - containerRect.top + container.scrollTop;
+ const w = bRect.width;
+ const h = bRect.height;
+ const taskId = b.dataset.id;
+ const text = taskMap.get(taskId).name;
+ if(b.classList.contains("blank")){
+ ctx.strokeStyle = isLight ? "rgba(80,90,140,0.35)" : "rgba(255,255,255,0.4)";
+ ctx.setLineDash([6,4]); ctx.lineWidth = 2;
+ ctx.strokeRect(x+1, y+1, w-2, h-2); ctx.setLineDash([]);
+ return;
+ }
+ const grad = ctx.createLinearGradient(x, y, x+w, y);
+ grad.addColorStop(0, colorCfg.c1);
+ grad.addColorStop(1, colorCfg.c2);
+ ctx.fillStyle = grad;
+ if(!b.classList.contains("done")){
+ ctx.shadowColor = colorCfg.c2;
+ ctx.shadowBlur = isLight ? 10 : 18;
+ }else{ ctx.shadowBlur = 0; }
+ roundRect(ctx, x, y, w, h, 8); ctx.fill();
+ ctx.shadowBlur = 0;
+ if(b.classList.contains("done")){
+ ctx.fillStyle = isLight ? "rgba(0,0,0,0.10)" : "rgba(0,0,0,0.22)";
+ roundRect(ctx, x, y, w, h, 8); ctx.fill();
+ }
+ ctx.fillStyle = isLight ? "#5b5a7a" : "#ffffff";
+ ctx.font = "bold 14px system-ui, sans-serif";
+ ctx.textBaseline = "middle";
+ const available = w - 34;
+ const displayText = ctx.measureText(text).width > available ? text.slice(0, Math.max(1, Math.floor(available / 9))) + "…" : text;
+ ctx.fillText(displayText, x + 10, y + h/2);
+ if(b.classList.contains("done")){
+ ctx.fillStyle = isLight ? "#5b5a7a" : "rgba(255,255,255,0.9)";
+ ctx.font = "bold 14px system-ui, sans-serif";
+ ctx.fillText("✓", x + w - 26, y + h/2);
+ }
+ });
+ });
+ const link = document.createElement("a");
+ link.download = "LumaTrack.png";
+ link.href = canvas.toDataURL("image/png");
+ link.click();
+ showToast("已匯出完整PNG");
+}
+
+function roundRect(ctx, x, y, w, h, r){
+ ctx.beginPath();
+ ctx.moveTo(x+r, y);
+ ctx.arcTo(x+w, y, x+w, y+h, r);
+ ctx.arcTo(x+w, y+h, x, y+h, r);
+ ctx.arcTo(x, y+h, x, y, r);
+ ctx.arcTo(x, y, x+w, y, r);
+ ctx.closePath();
+}
+
+function toggleTheme(){
+ document.body.classList.toggle("light-mode");
+ const icon = btnToggleTheme.querySelector("i");
+ if(document.body.classList.contains("light-mode")){
+ icon.className = "fa fa-sun-o"; showToast("已切換淺色模式");
+ }else{
+ icon.className = "fa fa-moon-o"; showToast("已切換深色模式");
+ }
+ updateTrackColors();
+}
+
+ta.addEventListener('input', ()=>{
+ clearTimeout(renderDebounceTimer);
+ renderDebounceTimer = setTimeout(()=>{
+  render(parseText(ta.value));
+ }, 250);
+});
+
+btnCopy.onclick = copyText;
+btnToggleTheme.onclick = toggleTheme;
+btnPngTop.onclick = exportPng; // 補上匯出PNG按鈕事件綁定
+
+document.addEventListener('mousedown',onStart);
+document.addEventListener('touchstart',onStart,{passive:false});
+document.addEventListener('mousemove',onMove);
+document.addEventListener('touchmove',onMove,{passive:false});
+document.addEventListener('mouseup',onEnd);
+document.addEventListener('touchend',onEnd);
+scrollBox.addEventListener('click', onClickBlock);
+
+render(parseText(ta.value));
+</script>
+</body>
+</html>
+
+
