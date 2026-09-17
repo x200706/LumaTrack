@@ -9,7 +9,6 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui, sans-serif;}
-
 :root{
  --bg:#07071a;
  --panel-bg:#0d0d2e;
@@ -23,7 +22,6 @@
  --scrollbar:#7744ff;
  --scrollbar-track:#1a1a3f;
 }
-
 body.light-mode{
  --bg:#f4f6ff;
  --panel-bg:#ffffff;
@@ -37,33 +35,21 @@ body.light-mode{
  --scrollbar:#b8b0ff;
  --scrollbar-track:#e9eaff;
 }
-
 body{ background:var(--bg); color:var(--text); padding:16px 8px; transition:background 0.25s, color 0.25s; }
-
 .header-wrap{ max-width:920px; margin:0 auto 12px; display:flex; align-items:center; justify-content:center; position:relative; }
-
 h1{ font-family: 'Unica One', sans-serif; font-size:clamp(24px, 3vw, 32px); font-weight:400; letter-spacing:1.5px; color:#e6e8ff; text-shadow:0 0 8px #7733ff,0 0 14px #3399ff; margin:0; }
-
 body.light-mode h1{ color:#5b5a7a; text-shadow:0 0 4px rgba(120,90,255,0.25); }
-
 #btnToggleTheme{ position:absolute; right:0; }
-
 .control-panel{ max-width:920px; margin:0 auto 16px; }
-
 .textarea-wrap{ position:relative; }
-
 textarea{ width:100%; background:var(--textarea-bg); color:var(--text); border:1px solid var(--textarea-border); border-radius:8px; padding:10px; font-size:14px; min-height:220px; resize:vertical; }
-
 textarea::-webkit-scrollbar { width: 8px; }
 textarea::-webkit-scrollbar-track { background: var(--scrollbar-track); border-radius: 99px; }
 textarea::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 99px; }
 textarea::-webkit-scrollbar-thumb:hover { opacity:0.8; }
-
 .textarea-actions{ position:absolute; top:8px; right:8px; display:flex; gap:6px; }
-
 .icon-btn{ width:28px; height:28px; border-radius:6px; border:none; cursor:pointer; display:grid; place-items:center; background:rgba(255,255,255,0.12); color:var(--text); font-size:16px; }
 body.light-mode .icon-btn{ background:rgba(0,0,0,0.08); }
-
 /* 匯出按鈕獨立區塊，不再蓋在scroll-container裡面 */
 .export-bar{ max-width:920px; margin:0 auto 8px; text-align:right; }
 #btnPngTop{
@@ -84,47 +70,31 @@ body.light-mode #btnPngTop{
  color:#4a3520;
  box-shadow:0 0 8px rgba(255,122,122,0.20);
 }
-
 .scroll-container{ overflow-x:auto; overflow-y:hidden; padding:16px 8px; max-width:920px; margin:0 auto; position:relative; }
-
 .scroll-container::-webkit-scrollbar { height: 8px; }
 .scroll-container::-webkit-scrollbar-track { background: var(--scrollbar-track); border-radius: 99px; }
 .scroll-container::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 99px; }
 .scroll-container::-webkit-scrollbar-thumb:hover { opacity:0.8; }
-
 .track{ display:flex; flex-direction:row; height:44px; margin-bottom:16px; align-items:center; position:relative; transition:background-color 0.15s; flex-shrink:0; }
-
 .track.active-hover{ background:var(--track-hover); border-radius:10px; }
-
 .track-label{ width:60px; font-size:13px; color:var(--text-dim); flex-shrink:0; background:var(--label-bg); border:1px solid var(--label-border); border-radius:8px; padding:4px 6px; text-align:center; }
-
 .task-block{ height:34px; display:flex; align-items:center; justify-content:flex-start; border-radius:8px; padding:0 8px; margin-right:4px; user-select:none; touch-action:none; position:relative; transition:filter 0.2s, opacity 0.2s, box-shadow 0.2s; overflow:hidden; white-space:nowrap; flex-shrink:0; }
-/* 只有拖曳模式才顯示grab光標，點擊打勾時不會有 */
 .task-block.draggable{ cursor:grab; }
 .task-block:active.draggable{ cursor:grabbing; }
-
 .task-block-text{ font-size:14px; font-weight:600; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; letter-spacing:0.2px; }
-
-.task-block.blank{ color:transparent; border:2px dashed rgba(255,255,255,0.4); background:transparent !important; box-shadow:none !important; /* 移除pointer-events:none，保留滑鼠事件 */ }
+.task-block.blank{ color:transparent; border:2px dashed rgba(255,255,255,0.4); background:transparent !important; box-shadow:none !important; }
 body.light-mode .task-block.blank{ border-color:rgba(80,90,140,0.35); }
-
 .task-block.done{ filter:brightness(0.55) saturate(0.45); box-shadow:none !important; border:1px solid rgba(255,255,255,0.18); }
 body.light-mode .task-block.done{ filter:brightness(0.82) saturate(0.75); border-color:rgba(0,0,0,0.10); }
-
 .task-block.done::after{ content:"✓"; position:absolute; right:12px; top:50%; transform:translateY(-50%); color:rgba(255,255,255,0.85); font-weight:bold; font-size:13px; }
 body.light-mode .task-block.done::after{ color:rgba(26,31,58,0.85); }
-
 .resize-handle{ position:absolute; right:0; top:0; width:10px; height:100%; cursor:ew-resize; }
-
 .dragging{ opacity:0.72; transform:scale(1.06) translateY(-3px); z-index:999; }
-
 .floating-snap-line{ position:fixed; width:8px; height:42px; background:#ffffff; box-shadow: 0 0 6px #fff, 0 0 14px #b488ff, 0 0 28px #7744ff; border-radius:4px; pointer-events:none; z-index:9999; display:none; }
 body.light-mode .floating-snap-line{ background:#333355; box-shadow: 0 0 6px #8888ff, 0 0 14px #b488ff; }
-
 .toast{ position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:rgba(20,20,40,0.92); color:white; padding:8px 14px; border-radius:8px; font-size:13px; opacity:0; pointer-events:none; transition:opacity 0.25s; z-index:99999; }
 body.light-mode .toast{ background:rgba(240,244,255,0.96); color:#5b5a7a; border:1px solid #bbc8ff; }
 .toast.show{ opacity:1; }
-
 @media (max-width:768px){
  .header-wrap,.control-panel,.export-bar,.scroll-container{ max-width:100%; }
  .track-label{ width:52px; font-size:12px; }
@@ -132,7 +102,6 @@ body.light-mode .toast{ background:rgba(240,244,255,0.96); color:#5b5a7a; border
  .task-block-text{ font-size:13px; }
 }
 </style>
-
 </head>
 <body>
 <div class="header-wrap">
@@ -151,7 +120,6 @@ body.light-mode .toast{ background:rgba(240,244,255,0.96); color:#5b5a7a; border
  </div>
  </div>
 </div>
-<!-- 匯出PNG獨立一排，不再跟甘特圖重疊 -->
 <div class="export-bar">
  <button id="btnPngTop"><i class="fa fa-file-image-o"></i>匯出PNG</button>
 </div>
@@ -167,7 +135,6 @@ const btnPngTop = document.getElementById("btnPngTop");
 const btnCopy = document.getElementById("btnCopy");
 const btnToggleTheme = document.getElementById("btnToggleTheme");
 const toast = document.getElementById("toast");
-
 let dragEl = null;
 let isResizing = false;
 let hoverTrack = null;
@@ -175,31 +142,50 @@ let snapTargetX = 0;
 let taskIdCounter = 0;
 const taskMap = new Map();
 let renderDebounceTimer = null;
+let isComposing = false;
+
+/* === LocalStorage 設定 === */
+const STORAGE_KEY = "lumatrack_data";
+const THEME_STORAGE_KEY = "lumatrack_theme";
+
+function saveToLocalStorage(){
+  localStorage.setItem(STORAGE_KEY, ta.value);
+}
+function loadFromLocalStorage(){
+  const saved = localStorage.getItem(STORAGE_KEY);
+  return saved ?? "";
+}
+
+// 主題儲存、讀取
+function saveTheme(isLight){
+  localStorage.setItem(THEME_STORAGE_KEY, isLight ? "light" : "dark");
+}
+function loadTheme(){
+  return localStorage.getItem(THEME_STORAGE_KEY);
+}
 
 const trackColorsDark = [
-  {c1:"#7b42ff", c2:"#b155ff"}, // 紫
-  {c1:"#22bbbb", c2:"#33aaff"}, // 藍
-  {c1:"#904cff", c2:"#cc66ff"}, // 紫
-  {c1:"#22bbbb", c2:"#33aaff"}, // 藍
-  {c1:"#8544ff", c2:"#b860ff"}, // 紫
-  {c1:"#22bbbb", c2:"#33aaff"}, // 藍
+  {c1:"#7b42ff", c2:"#b155ff"},
+  {c1:"#22bbbb", c2:"#33aaff"},
+  {c1:"#904cff", c2:"#cc66ff"},
+  {c1:"#22bbbb", c2:"#33aaff"},
+  {c1:"#8544ff", c2:"#b860ff"},
+  {c1:"#22bbbb", c2:"#33aaff"},
 ];
 const trackColorsLight = [
-  {c1:"#c8bfff", c2:"#e0c2ff"}, // 淺紫
-  {c1:"#b2e9ef", c2:"#b8dfff"}, // 淺藍
-  {c1:"#d0c0ff", c2:"#e8ccff"}, // 淺紫
-  {c1:"#b2e9ef", c2:"#b8dfff"}, // 淺藍
-  {c1:"#d2c4ff", c2:"#e9d0ff"}, // 淺紫
-  {c1:"#b2e9ef", c2:"#b8dfff"}, // 淺藍
+  {c1:"#c8bfff", c2:"#e0c2ff"},
+  {c1:"#b2e9ef", c2:"#b8dfff"},
+  {c1:"#d0c0ff", c2:"#e8ccff"},
+  {c1:"#b2e9ef", c2:"#b8dfff"},
+  {c1:"#d2c4ff", c2:"#e9d0ff"},
+  {c1:"#b2e9ef", c2:"#b8dfff"},
 ];
-
 function showToast(msg){
  toast.textContent = msg;
  toast.classList.add("show");
  clearTimeout(toast._t);
  toast._t = setTimeout(()=>toast.classList.remove("show"), 1200);
 }
-
 function syncGanttToTextarea(){
  const tracks = [...document.querySelectorAll(".track")];
  let lines=[];
@@ -218,8 +204,8 @@ function syncGanttToTextarea(){
  }
  }
  ta.value = lines.join('\n');
+ saveToLocalStorage();
 }
-
 function parseText(text){
  const lines = text.split('\n').map(s=>s.trim()).filter(s=>s);
  const tracks = [ {name:"主線",tasks:[]}, {name:"次要",tasks:[]} ];
@@ -246,7 +232,6 @@ function parseText(text){
  }
  return tracks;
 }
-
 function updateTrackColors(){
  const isLight = document.body.classList.contains("light-mode");
  const colorList = isLight ? trackColorsLight : trackColorsDark;
@@ -262,10 +247,8 @@ function updateTrackColors(){
   })
  })
 }
-
 function render(tracks){
  scrollBox.innerHTML = "";
-
  tracks.forEach((tr,idx)=>{
  const divTrack = document.createElement('div');
  divTrack.className = `track`;
@@ -274,7 +257,6 @@ function render(tracks){
  label.className = "track-label";
  label.innerText = tr.name;
  divTrack.appendChild(label);
-
  tr.tasks.forEach(t=>{
  const blk = document.createElement('div');
  blk.className = "task-block draggable";
@@ -282,7 +264,6 @@ function render(tracks){
  if(t.isBlank) blk.classList.add("blank");
  if(t.done) blk.classList.add("done");
  blk.style.width = t.w+"px";
-
  const textSpan = document.createElement("span");
  textSpan.className = "task-block-text";
  textSpan.textContent = t.name;
@@ -296,7 +277,6 @@ function render(tracks){
  })
  updateTrackColors();
 }
-
 function getTrackFromPoint(x,y){
  const tracks = [...document.querySelectorAll('.track')];
  for(const t of tracks){
@@ -305,7 +285,6 @@ function getTrackFromPoint(x,y){
  }
  return null;
 }
-
 function findNearestGapX(track, pointerX){
  const blocks = [...track.querySelectorAll('.task-block')];
  if(blocks.length===0){
@@ -330,7 +309,6 @@ function findNearestGapX(track, pointerX){
  }
  return minDist<28 ? best : pointerX;
 }
-
 function onStart(e){
  const pt = e.touches ? e.touches[0] : e;
  const target = e.target;
@@ -338,14 +316,12 @@ function onStart(e){
  isResizing = true; dragEl = target.parentElement; return;
  }
  if(target.classList.contains('task-block') || target.classList.contains('task-block-text')){
- // 點擊打勾就不啟動拖曳
  if(target.closest(".task-block") && !["resize-handle","task-block","task-block-text"].includes(target.className)) return;
  dragEl = target.closest('.task-block');
  dragEl.classList.add('dragging');
  snapLine.style.display = "block";
  }
 }
-
 function onMove(e){
  if(!dragEl) return; e.preventDefault();
  const pt = e.touches ? e.touches[0] : e;
@@ -364,7 +340,6 @@ function onMove(e){
  snapLine.style.left = (snapTargetX -4)+"px";
  snapLine.style.top = (tr.top+5)+"px";
 }
-
 function onEnd(e){
  if(!dragEl) return;
  const taskId = dragEl.dataset.id;
@@ -388,13 +363,11 @@ function onEnd(e){
  syncGanttToTextarea();
  updateTrackColors();
 }
-
 function onClickBlock(e){
  const target = e.target;
  if(target.classList.contains('resize-handle')) return;
  const blk = target.closest('.task-block');
  if(blk){
-  // 空白格禁止打勾，但保留拖曳、縮放
   if(blk.classList.contains("blank")) return;
   blk.classList.toggle("done");
   const id = blk.dataset.id;
@@ -403,11 +376,9 @@ function onClickBlock(e){
   syncGanttToTextarea();
  }
 }
-
 async function copyText(){
  try{ await navigator.clipboard.writeText(ta.value); showToast("已複製"); }catch(err){ ta.select(); document.execCommand("copy"); showToast("已複製"); }
 }
-
 async function exportPng(){
  const scale = 2;
  const container = scrollBox;
@@ -424,10 +395,8 @@ async function exportPng(){
  const isLight = document.body.classList.contains("light-mode");
  ctx.fillStyle = isLight ? "#f4f6ff" : "#07071a";
  ctx.fillRect(0, 0, fullW, fullH);
-
  const tracks = [...container.querySelectorAll(".track")];
  const colorList = isLight ? trackColorsLight : trackColorsDark;
-
  tracks.forEach((tr, trackIndex)=>{
  const trRect = tr.getBoundingClientRect();
  const containerRect = container.getBoundingClientRect();
@@ -448,7 +417,6 @@ async function exportPng(){
  ctx.font = "13px system-ui, sans-serif";
  ctx.textBaseline = "middle";
  ctx.fillText(label.innerText, labelX + 8, labelY + labelH/2);
-
  const blocks = [...tr.querySelectorAll(".task-block")];
  const colorCfg = colorList[trackIndex % colorList.length];
  blocks.forEach(b=>{
@@ -498,7 +466,6 @@ async function exportPng(){
  link.click();
  showToast("已匯出完整PNG");
 }
-
 function roundRect(ctx, x, y, w, h, r){
  ctx.beginPath();
  ctx.moveTo(x+r, y);
@@ -508,11 +475,12 @@ function roundRect(ctx, x, y, w, h, r){
  ctx.arcTo(x, y, x+w, y, r);
  ctx.closePath();
 }
-
 function toggleTheme(){
  document.body.classList.toggle("light-mode");
+ const isLightNow = document.body.classList.contains("light-mode");
+ saveTheme(isLightNow); // 切換就儲存主題
  const icon = btnToggleTheme.querySelector("i");
- if(document.body.classList.contains("light-mode")){
+ if(isLightNow){
  icon.className = "fa fa-sun-o"; showToast("已切換淺色模式");
  }else{
  icon.className = "fa fa-moon-o"; showToast("已切換深色模式");
@@ -520,17 +488,32 @@ function toggleTheme(){
  updateTrackColors();
 }
 
-ta.addEventListener('input', ()=>{
- clearTimeout(renderDebounceTimer);
- renderDebounceTimer = setTimeout(()=>{
-  render(parseText(ta.value));
- }, 250);
+/* === IME 注音/日文輸入法事件 === */
+ta.addEventListener('compositionstart', ()=>{
+  isComposing = true;
+  clearTimeout(renderDebounceTimer);
+});
+ta.addEventListener('compositionend', ()=>{
+  isComposing = false;
+  clearTimeout(renderDebounceTimer);
+  renderDebounceTimer = setTimeout(()=>{
+    render(parseText(ta.value));
+    saveToLocalStorage();
+  },250);
+});
+
+ta.addEventListener('input', (e)=>{
+  if(isComposing || e.isComposing) return;
+  clearTimeout(renderDebounceTimer);
+  renderDebounceTimer = setTimeout(()=>{
+    render(parseText(ta.value));
+    saveToLocalStorage();
+  }, 250);
 });
 
 btnCopy.onclick = copyText;
 btnToggleTheme.onclick = toggleTheme;
-btnPngTop.onclick = exportPng; // 補上匯出PNG按鈕事件綁定
-
+btnPngTop.onclick = exportPng;
 document.addEventListener('mousedown',onStart);
 document.addEventListener('touchstart',onStart,{passive:false});
 document.addEventListener('mousemove',onMove);
@@ -539,9 +522,27 @@ document.addEventListener('mouseup',onEnd);
 document.addEventListener('touchend',onEnd);
 scrollBox.addEventListener('click', onClickBlock);
 
-render(parseText(ta.value));
+/* === 頁面初始化 === */
+// 主題初始化：沒有存過預設淺色
+const savedTheme = loadTheme();
+if(savedTheme === null){
+  // 第一次進入：預設淺色模式
+  document.body.classList.add("light-mode");
+  btnToggleTheme.querySelector("i").className = "fa fa-sun-o";
+}else if(savedTheme === "light"){
+  document.body.classList.add("light-mode");
+  btnToggleTheme.querySelector("i").className = "fa fa-sun-o";
+}else{
+  document.body.classList.remove("light-mode");
+  btnToggleTheme.querySelector("i").className = "fa fa-moon-o";
+}
+
+const storedText = loadFromLocalStorage();
+ta.value = storedText;
+if(storedText.trim() !== ""){
+  render(parseText(storedText));
+}
+updateTrackColors();
 </script>
 </body>
 </html>
-
-
